@@ -290,6 +290,8 @@ MuxInput::GetMediaType(int iPosition, CMediaType* pmt)
 STDMETHODIMP 
 MuxInput::Receive(IMediaSample* pSample)
 {
+    CAutoLock lock(&m_csStreamControl);
+
     HRESULT hr = CBaseInputPin::Receive(pSample);
     if (hr != S_OK)
     {
@@ -418,6 +420,8 @@ MuxInput::Active()
 HRESULT 
 MuxInput::Inactive()
 {
+    CAutoLock lock(&m_csStreamControl);
+
     // ensure that there are no more writes and no blocking threads
     if (m_pTrack)
     {
