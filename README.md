@@ -9,5 +9,5 @@ Original filters contain both mux and demux filters. This repository contains mu
 Build
 ======
 
-* Add base classes to your project's include directories (it's "C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\directshow\baseclasses" for me)
+* Add base classes to your project's include directories (it's `C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\directshow\baseclasses` for me)
 * Add Strmbase.lib or Strmbased.lib (build base classes to get it. Read more at http://msdn.microsoft.com/en-us/library/windows/desktop/dd318238(v=vs.85).aspx)
