@@ -71,7 +71,7 @@ NALUnit::Parse(const BYTE* pBuffer, int cSpace, int LengthSize, bool bEnd)
 
     if (LengthSize > 0)
     {
-		m_pStartCodeStart = pBuffer;
+        m_pStartCodeStart = pBuffer;
 
         if (LengthSize > cSpace)
         {
@@ -96,7 +96,7 @@ NALUnit::Parse(const BYTE* pBuffer, int cSpace, int LengthSize, bool bEnd)
         if (GetStartCode(pBegin, pBuffer, cSpace))
         {
             m_pStart = pBuffer;
-			m_pStartCodeStart = pBegin;
+            m_pStartCodeStart = pBegin;
 
             // either we find another startcode, or we continue to the
             // buffer end (if this is the last block of data)
@@ -250,18 +250,18 @@ SeqParamSet::SeqParamSet()
 void
 ScalingList(int size, NALUnit* pnalu)
 {
-	long lastScale = 8;
-	long nextScale = 8;
-	for (int j = 0 ; j < size; j++)
-	{
-		if (nextScale != 0)
-		{
-			long delta = pnalu->GetSE();
-			nextScale = (lastScale + delta + 256) %256;
-		}
-		int scaling_list_j = (nextScale == 0) ? lastScale : nextScale;
-		lastScale = scaling_list_j;
-	}
+    long lastScale = 8;
+    long nextScale = 8;
+    for (int j = 0 ; j < size; j++)
+    {
+        if (nextScale != 0)
+        {
+            long delta = pnalu->GetSE();
+            nextScale = (lastScale + delta + 256) %256;
+        }
+        int scaling_list_j = (nextScale == 0) ? lastScale : nextScale;
+        lastScale = scaling_list_j;
+    }
 }
 
 
@@ -276,42 +276,42 @@ SeqParamSet::Parse(NALUnit* pnalu)
     // with the UE/SE type encoding, we must decode all the values
     // to get through to the ones we want
     pnalu->ResetBitstream();
-	pnalu->Skip(8);		// type
-	m_Profile = pnalu->GetWord(8);
-	m_Compatibility = (BYTE) pnalu->GetWord(8);
-	m_Level = pnalu->GetWord(8);
+    pnalu->Skip(8);     // type
+    m_Profile = pnalu->GetWord(8);
+    m_Compatibility = (BYTE) pnalu->GetWord(8);
+    m_Level = pnalu->GetWord(8);
 
-	/*int seq_param_id =*/ pnalu->GetUE();
+    /*int seq_param_id =*/ pnalu->GetUE();
 
-	if ((m_Profile == 100) || (m_Profile == 110) || (m_Profile == 122) || (m_Profile == 144))
-	{
-		int chroma_fmt = pnalu->GetUE();
-		if (chroma_fmt == 3)
-		{
-			pnalu->Skip(1);
-		}
-		/* int bit_depth_luma_minus8 = */ pnalu->GetUE();
-		/* int bit_depth_chroma_minus8 = */ pnalu->GetUE();
-		pnalu->Skip(1);
-		int seq_scaling_matrix_present = pnalu->GetBit();
-		if (seq_scaling_matrix_present)
-		{
-			for (int i = 0; i < 8; i++)
-			{
-				if (pnalu->GetBit())
-				{
-					if (i < 6)
-					{
-						ScalingList(16, pnalu);
-					}
-					else
-					{
-						ScalingList(64, pnalu);
-					}
-				}
-			}
-		}
-	}
+    if ((m_Profile == 100) || (m_Profile == 110) || (m_Profile == 122) || (m_Profile == 144))
+    {
+        int chroma_fmt = pnalu->GetUE();
+        if (chroma_fmt == 3)
+        {
+            pnalu->Skip(1);
+        }
+        /* int bit_depth_luma_minus8 = */ pnalu->GetUE();
+        /* int bit_depth_chroma_minus8 = */ pnalu->GetUE();
+        pnalu->Skip(1);
+        int seq_scaling_matrix_present = pnalu->GetBit();
+        if (seq_scaling_matrix_present)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                if (pnalu->GetBit())
+                {
+                    if (i < 6)
+                    {
+                        ScalingList(16, pnalu);
+                    }
+                    else
+                    {
+                        ScalingList(64, pnalu);
+                    }
+                }
+            }
+        }
+    }
 
     int log2_frame_minus4 = pnalu->GetUE();
     m_FrameBits = log2_frame_minus4 + 4;
@@ -330,11 +330,11 @@ SeqParamSet::Parse(NALUnit* pnalu)
             /*int sf_offset =*/ pnalu->GetSE();
         }
     } 
-	else if (POCtype != 2)
-	{
-		return false;
-	}
-	// else for POCtype == 2, no additional data in stream
+    else if (POCtype != 2)
+    {
+        return false;
+    }
+    // else for POCtype == 2, no additional data in stream
     
     /*int num_ref_frames =*/ pnalu->GetUE();
     /*int gaps_allowed =*/ pnalu->GetBit();
@@ -344,11 +344,11 @@ SeqParamSet::Parse(NALUnit* pnalu)
     m_cx = (mbs_width+1) * 16;
     m_cy = (mbs_height+1) * 16;
 
-	// smoke test validation of sps
-	if ((m_cx > 2000) || (m_cy > 2000))
-	{
-		return false;
-	}
+    // smoke test validation of sps
+    if ((m_cx > 2000) || (m_cy > 2000))
+    {
+        return false;
+    }
 
     // if this is false, then sizes are field sizes and need adjusting
     m_bFrameOnly = pnalu->GetBit() ? true : false;
@@ -423,24 +423,24 @@ SliceHeader::Parse(NALUnit* pnalu)
 
 SEIMessage::SEIMessage(NALUnit* pnalu)
 {
-	m_pnalu = pnalu;
-	const BYTE* p = pnalu->Start();
-	p++;		// nalu type byte
-	m_type = 0;
-	while (*p == 0xff)
-	{
-		m_type += 255;
-		p++;
-	}
-	m_type += *p;
-	p++;
-	m_length = 0;
-	while (*p == 0xff)
-	{
-		m_type += 255;
-		p++;
-	}
-	m_length += *p;
-	*p++;
-	m_idxPayload = int(p - m_pnalu->Start());
+    m_pnalu = pnalu;
+    const BYTE* p = pnalu->Start();
+    p++;        // nalu type byte
+    m_type = 0;
+    while (*p == 0xff)
+    {
+        m_type += 255;
+        p++;
+    }
+    m_type += *p;
+    p++;
+    m_length = 0;
+    while (*p == 0xff)
+    {
+        m_type += 255;
+        p++;
+    }
+    m_length += *p;
+    *p++;
+    m_idxPayload = int(p - m_pnalu->Start());
 }

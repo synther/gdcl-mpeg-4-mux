@@ -16,22 +16,22 @@ class NALUnit
 {
 public:
     NALUnit();
-	virtual ~NALUnit() {}
+    virtual ~NALUnit() {}
 
-	// assignment copies a pointer into a fixed buffer managed elsewhere. We do not copy the data
-	NALUnit(const NALUnit& r)
-	{
-		m_pStart = r.m_pStart;
-		m_cBytes = r.m_cBytes;
-		ResetBitstream();
-	}
-	const NALUnit& operator=(const NALUnit& r)
-	{
-		m_pStart = r.m_pStart;
-		m_cBytes = r.m_cBytes;
-		ResetBitstream();
-		return *this;
-	}
+    // assignment copies a pointer into a fixed buffer managed elsewhere. We do not copy the data
+    NALUnit(const NALUnit& r)
+    {
+        m_pStart = r.m_pStart;
+        m_cBytes = r.m_cBytes;
+        ResetBitstream();
+    }
+    const NALUnit& operator=(const NALUnit& r)
+    {
+        m_pStart = r.m_pStart;
+        m_cBytes = r.m_cBytes;
+        ResetBitstream();
+        return *this;
+    }
 
     enum eNALType
     {
@@ -40,10 +40,10 @@ public:
         NAL_PartitionB          = 3,
         NAL_PartitionC          = 4,
         NAL_IDR_Slice           = 5,
-		NAL_SEI					= 6,
+        NAL_SEI                 = 6,
         NAL_Sequence_Params     = 7,
         NAL_Picture_Params      = 8,
-		NAL_AUD					= 9,
+        NAL_AUD                 = 9,
     };
 
     // identify a NAL unit within a buffer.
@@ -54,10 +54,10 @@ public:
     
     eNALType Type()
     {
-		if (m_pStart == NULL)
-		{
-			return eNALType(0);
-		}
+        if (m_pStart == NULL)
+        {
+            return eNALType(0);
+        }
         return eNALType(m_pStart[0] & 0x1F);
     }
     
@@ -81,14 +81,14 @@ public:
     BYTE GetBYTE();
     unsigned long GetBit();
 
-	const BYTE* StartCodeStart()	{ return m_pStartCodeStart; }
+    const BYTE* StartCodeStart()    { return m_pStartCodeStart; }
 
 
 private:
     bool GetStartCode(const BYTE*& pBegin, const BYTE*& pStart, int& cRemain);
 
 private:
-	const BYTE* m_pStartCodeStart;
+    const BYTE* m_pStartCodeStart;
     const BYTE* m_pStart;
     int m_cBytes;
 
@@ -139,24 +139,24 @@ public:
     {
         return &m_rcFrame;
     }
-	bool Interlaced()
-	{
-		return !m_bFrameOnly;
-	}
-	ULONG Profile()	{ return m_Profile; }
-	ULONG Level()	{ return m_Level; }
-	BYTE Compat()	{ return m_Compatibility; }
+    bool Interlaced()
+    {
+        return !m_bFrameOnly;
+    }
+    ULONG Profile() { return m_Profile; }
+    ULONG Level()   { return m_Level; }
+    BYTE Compat()   { return m_Compatibility; }
 private:
     NALUnit m_nalu;
     int m_FrameBits;
     long m_cx;
     long m_cy;
     RECT m_rcFrame;
-	bool m_bFrameOnly;
+    bool m_bFrameOnly;
 
-	ULONG m_Profile;
-	ULONG m_Level;
-	BYTE m_Compatibility;
+    ULONG m_Profile;
+    ULONG m_Level;
+    BYTE m_Compatibility;
 };
 
 // extract frame num from slice headers
@@ -184,14 +184,14 @@ private:
 class SEIMessage
 {
 public:
-	SEIMessage(NALUnit* pnalu);
-	int Type()					{ return m_type; }
-	int Length()				{ return m_length; }
-	const BYTE* Payload()		{ return m_pnalu->Start() + m_idxPayload; }
+    SEIMessage(NALUnit* pnalu);
+    int Type()                  { return m_type; }
+    int Length()                { return m_length; }
+    const BYTE* Payload()       { return m_pnalu->Start() + m_idxPayload; }
 private:
-	NALUnit* m_pnalu;
-	int m_type;
-	int m_length;
-	int m_idxPayload;
+    NALUnit* m_pnalu;
+    int m_type;
+    int m_length;
+    int m_idxPayload;
 };
 

@@ -65,13 +65,13 @@ public:
 
     DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID iid, void** ppv)
-	{
-		if (iid == IID_IAMStreamControl)
-		{
-			return GetInterface((IAMStreamControl*) this, ppv);
-		}
-		return __super::NonDelegatingQueryInterface(iid, ppv);
-	}
+    {
+        if (iid == IID_IAMStreamControl)
+        {
+            return GetInterface((IAMStreamControl*) this, ppv);
+        }
+        return __super::NonDelegatingQueryInterface(iid, ppv);
+    }
 
     // CBasePin overrides
     HRESULT CheckMediaType(const CMediaType* pmt);
@@ -93,26 +93,26 @@ public:
 
     // support custom allocator
     STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
-	STDMETHODIMP NotifyAllocator(IMemAllocator* pAlloc, BOOL bReadOnly);
+    STDMETHODIMP NotifyAllocator(IMemAllocator* pAlloc, BOOL bReadOnly);
 
-	// IAMStreamControl methods
-	STDMETHOD(StartAt)(const REFERENCE_TIME* ptStart, DWORD dwCookie);
-	STDMETHOD(StopAt)(const REFERENCE_TIME* ptStop, BOOL bSendExtra, DWORD dwCookie);
-	STDMETHOD(GetInfo)(AM_STREAM_INFO* pInfo);
+    // IAMStreamControl methods
+    STDMETHOD(StartAt)(const REFERENCE_TIME* ptStart, DWORD dwCookie);
+    STDMETHOD(StopAt)(const REFERENCE_TIME* ptStop, BOOL bSendExtra, DWORD dwCookie);
+    STDMETHOD(GetInfo)(AM_STREAM_INFO* pInfo);
 
 private:
-	bool ShouldDiscard(IMediaSample* pSample);
-	HRESULT CopySample(IMediaSample* pIn, IMediaSample* pOut);
+    bool ShouldDiscard(IMediaSample* pSample);
+    HRESULT CopySample(IMediaSample* pIn, IMediaSample* pOut);
 
 private:
     Mpeg4Mux* m_pMux;
     int m_index;
     TrackWriter* m_pTrack;
 
-	CCritSec m_csStreamControl;
-	AM_STREAM_INFO m_StreamInfo;
+    CCritSec m_csStreamControl;
+    AM_STREAM_INFO m_StreamInfo;
 
-	IMemAllocatorPtr m_pCopyAlloc;	// private allocator if source has too few buffers
+    IMemAllocatorPtr m_pCopyAlloc;  // private allocator if source has too few buffers
 };
 
 
@@ -131,7 +131,7 @@ public:
     HRESULT GetMediaType(int iPosition, CMediaType* pmt);
     HRESULT DecideBufferSize(IMemAllocator * pAlloc, ALLOCATOR_PROPERTIES * pprop);
     HRESULT CompleteConnect(IPin *pReceivePin);
-	HRESULT BreakConnect();
+    HRESULT BreakConnect();
 
     // called from filter
     void Reset();
@@ -148,7 +148,7 @@ private:
     CCritSec m_csWrite;
     bool m_bUseIStream;
     LONGLONG m_llBytes;
-	IStreamPtr m_pIStream;
+    IStreamPtr m_pIStream;
 };
 
 // To pass seeking calls upstream we must try all connected input pins.
@@ -215,7 +215,7 @@ public:
     bool CanReceive(const CMediaType* pmt);
     TrackWriter* MakeTrack(int index, const CMediaType* pmt);
     void OnEOS();
-	REFERENCE_TIME Start() { return m_tStart;}
+    REFERENCE_TIME Start() { return m_tStart;}
 
     // we implement IMediaSeeking to allow encoding
     // of specific portions of an input clip, and
@@ -237,7 +237,7 @@ public:
     STDMETHODIMP ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat,
                               LONGLONG    Source, const GUID * pSourceFormat );
     STDMETHODIMP SetPositions(LONGLONG * pCurrent, DWORD dwCurrentFlags
-			, LONGLONG * pStop, DWORD dwStopFlags );
+            , LONGLONG * pStop, DWORD dwStopFlags );
     STDMETHODIMP GetPositions(LONGLONG * pCurrent,
                               LONGLONG * pStop );
     STDMETHODIMP GetAvailable(LONGLONG * pEarliest, LONGLONG * pLatest );
@@ -245,7 +245,7 @@ public:
     STDMETHODIMP GetRate(double * pdRate);
     STDMETHODIMP GetPreroll(LONGLONG * pllPreroll);
 
-	
+    
 private:
     // construct only via class factory
     Mpeg4Mux(LPUNKNOWN pUnk, HRESULT* phr);

@@ -16,10 +16,10 @@
 
 void WriteVariable(ULONG val, BYTE* pDest, int cBytes)
 {
-	for (int i = 0; i < cBytes; i++)
-	{
-		pDest[i] = BYTE((val >> (8 * (cBytes - (i+1)))) & 0xff);
-	}
+    for (int i = 0; i < cBytes; i++)
+    {
+        pDest[i] = BYTE((val >> (8 * (cBytes - (i+1)))) & 0xff);
+    }
 }
 
 class DivxHandler : public TypeHandler
@@ -50,16 +50,16 @@ public:
     {
         return 90000;
     }
-	long Width();
-	long Height();
+    long Width();
+    long Height();
 
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
-	HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
+    HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
 
 private:
     CMediaType m_mt;
-	smart_array<BYTE> m_pConfig;
-	long m_cConfig;
+    smart_array<BYTE> m_pConfig;
+    long m_cConfig;
 };
 
 class H264Handler : public TypeHandler
@@ -92,11 +92,11 @@ public:
     {
         return 90000;
     }
-	long Width();
-	long Height();
+    long Width();
+    long Height();
 
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
-	LONGLONG FrameDuration();
+    LONGLONG FrameDuration();
 
 protected:
     CMediaType m_mt;
@@ -105,24 +105,24 @@ protected:
 class H264ByteStreamHandler : public H264Handler
 {
 public:
-	H264ByteStreamHandler(const CMediaType* pmt);
+    H264ByteStreamHandler(const CMediaType* pmt);
 
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
-	LONGLONG FrameDuration();
-	HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
+    LONGLONG FrameDuration();
+    HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
 
-	long Width()	{ return m_cx; }
-	long Height()	{ return m_cy; }
+    long Width()    { return m_cx; }
+    long Height()   { return m_cy; }
 
-	enum { nalunit_length_field = 4 };
+    enum { nalunit_length_field = 4 };
 private:
-	REFERENCE_TIME m_tFrame;
-	long m_cx;
-	long m_cy;
+    REFERENCE_TIME m_tFrame;
+    long m_cx;
+    long m_cy;
 
-	ParseBuffer m_ParamSets;		// stores param sets for WriteDescriptor
-	bool m_bSPS;
-	bool m_bPPS;
+    ParseBuffer m_ParamSets;        // stores param sets for WriteDescriptor
+    bool m_bSPS;
+    bool m_bPPS;
 };
 
 class YUVVideoHandler : public TypeHandler
@@ -155,8 +155,8 @@ public:
     {
         return 90000;
     }
-	long Width();
-	long Height();
+    long Width();
+    long Height();
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
 private:
     CMediaType m_mt;
@@ -187,8 +187,8 @@ public:
         return 50;
     }
     long Scale();
-	long Width()	{ return 0; }
-	long Height()	{ return 0; }
+    long Width()    { return 0; }
+    long Height()   { return 0; }
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
 private:
     CMediaType m_mt;
@@ -220,12 +220,12 @@ public:
     {
         return 50;
     }
-	bool CanTruncate();
-	bool Truncate(IMediaSample* pSample, REFERENCE_TIME tNewStart);
+    bool CanTruncate();
+    bool Truncate(IMediaSample* pSample, REFERENCE_TIME tNewStart);
 
     long Scale();
-	long Width()	{ return 0; }
-	long Height()	{ return 0; }
+    long Width()    { return 0; }
+    long Height()   { return 0; }
     void WriteDescriptor(Atom* patm, int id, int dataref, long scale);
 private:
     CMediaType m_mt;
@@ -252,68 +252,68 @@ TypeHandler::CanSupport(const CMediaType* pmt)
         FOURCCMap divxCaps(DWORD('DIVX'));
         FOURCCMap dx50(DWORD('05XD'));
         if (((*pmt->Subtype() == divx) || 
-			(*pmt->Subtype() == divxCaps) ||
-			(*pmt->Subtype() == xvidCaps) ||
-			(*pmt->Subtype() == dx50)) 
-			    &&
-				(*pmt->FormatType() == FORMAT_VideoInfo))
+            (*pmt->Subtype() == divxCaps) ||
+            (*pmt->Subtype() == xvidCaps) ||
+            (*pmt->Subtype() == dx50)) 
+                &&
+                (*pmt->FormatType() == FORMAT_VideoInfo))
         {
             return true;
         }
 
-		FOURCCMap x264(DWORD('462x'));
-		FOURCCMap H264(DWORD('462H'));
-		FOURCCMap h264(DWORD('462h'));
-		FOURCCMap avc1(DWORD('1CVA'));
+        FOURCCMap x264(DWORD('462x'));
+        FOURCCMap H264(DWORD('462H'));
+        FOURCCMap h264(DWORD('462h'));
+        FOURCCMap avc1(DWORD('1CVA'));
 
-		// H264 BSF
-		if ((*pmt->Subtype() == x264) || 
-			(*pmt->Subtype() == H264) ||
-			(*pmt->Subtype() == h264) ||
-			(*pmt->Subtype() == avc1) ||
-			(*pmt->Subtype() == __uuidof(CLSID_H264_BSF)))
-		{
-			// BSF
-			if ((*pmt->FormatType() == FORMAT_VideoInfo) || (*pmt->FormatType() == FORMAT_VideoInfo2))
-			{
-				return true;
-			}
-			// length-prepended
-			if (*pmt->FormatType() == FORMAT_MPEG2Video)
-			{
-				return true;
-			}
-		}
+        // H264 BSF
+        if ((*pmt->Subtype() == x264) || 
+            (*pmt->Subtype() == H264) ||
+            (*pmt->Subtype() == h264) ||
+            (*pmt->Subtype() == avc1) ||
+            (*pmt->Subtype() == __uuidof(CLSID_H264_BSF)))
+        {
+            // BSF
+            if ((*pmt->FormatType() == FORMAT_VideoInfo) || (*pmt->FormatType() == FORMAT_VideoInfo2))
+            {
+                return true;
+            }
+            // length-prepended
+            if (*pmt->FormatType() == FORMAT_MPEG2Video)
+            {
+                return true;
+            }
+        }
 
-		// uncompressed
-		// it would be nice to select any uncompressed type eg by checking that
-		// the bitcount and biSize match up with the dimensions, but that
-		// also works for ffdshow encoder outputs, so I'm returning to an 
-		// explicit list. 
-		FOURCCMap fcc(pmt->subtype.Data1);
-		if ((fcc == *pmt->Subtype()) && (*pmt->FormatType() == FORMAT_VideoInfo))
-		{
-			VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)pmt->Format();
-			if ((pvi->bmiHeader.biBitCount > 0) && (DIBSIZE(pvi->bmiHeader) == pmt->GetSampleSize()))
-			{
-				FOURCCMap yuy2(DWORD('2YUY'));
-				FOURCCMap uyvy(DWORD('YVYU'));
-				FOURCCMap yv12(DWORD('21VY'));
-				FOURCCMap nv12(DWORD('21VN'));
-				FOURCCMap i420(DWORD('024I'));
-				if ((*pmt->Subtype() == yuy2) ||
-					(*pmt->Subtype() == uyvy) ||
-					(*pmt->Subtype() == yv12) ||
-					(*pmt->Subtype() == nv12) ||
-//					(*pmt->Subtype() == MEDIASUBTYPE_RGB32) ||
-//					(*pmt->Subtype() == MEDIASUBTYPE_RGB24) ||
-					(*pmt->Subtype() == i420)
-					)
-				{
-					return true;
-				}
-			}
-		}
+        // uncompressed
+        // it would be nice to select any uncompressed type eg by checking that
+        // the bitcount and biSize match up with the dimensions, but that
+        // also works for ffdshow encoder outputs, so I'm returning to an 
+        // explicit list. 
+        FOURCCMap fcc(pmt->subtype.Data1);
+        if ((fcc == *pmt->Subtype()) && (*pmt->FormatType() == FORMAT_VideoInfo))
+        {
+            VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)pmt->Format();
+            if ((pvi->bmiHeader.biBitCount > 0) && (DIBSIZE(pvi->bmiHeader) == pmt->GetSampleSize()))
+            {
+                FOURCCMap yuy2(DWORD('2YUY'));
+                FOURCCMap uyvy(DWORD('YVYU'));
+                FOURCCMap yv12(DWORD('21VY'));
+                FOURCCMap nv12(DWORD('21VN'));
+                FOURCCMap i420(DWORD('024I'));
+                if ((*pmt->Subtype() == yuy2) ||
+                    (*pmt->Subtype() == uyvy) ||
+                    (*pmt->Subtype() == yv12) ||
+                    (*pmt->Subtype() == nv12) ||
+//                  (*pmt->Subtype() == MEDIASUBTYPE_RGB32) ||
+//                  (*pmt->Subtype() == MEDIASUBTYPE_RGB24) ||
+                    (*pmt->Subtype() == i420)
+                    )
+                {
+                    return true;
+                }
+            }
+        }
     } else if (*pmt->Type() == MEDIATYPE_Audio)
     {
         // rely on format tag to identify formats -- for 
@@ -356,47 +356,47 @@ TypeHandler::Make(const CMediaType* pmt)
         FOURCCMap divxCaps(DWORD('DIVX'));
         FOURCCMap dx50(DWORD('05XD'));
         if ((*pmt->Subtype() == divx) || 
-			(*pmt->Subtype() == divxCaps) ||
-			(*pmt->Subtype() == xvidCaps) ||
-			(*pmt->Subtype() == dx50)) 
+            (*pmt->Subtype() == divxCaps) ||
+            (*pmt->Subtype() == xvidCaps) ||
+            (*pmt->Subtype() == dx50)) 
         {
             return new DivxHandler(pmt);
         }
 
-		FOURCCMap x264(DWORD('462x'));
-		FOURCCMap H264(DWORD('462H'));
-		FOURCCMap h264(DWORD('462h'));
-		FOURCCMap avc1(DWORD('1CVA'));
+        FOURCCMap x264(DWORD('462x'));
+        FOURCCMap H264(DWORD('462H'));
+        FOURCCMap h264(DWORD('462h'));
+        FOURCCMap avc1(DWORD('1CVA'));
 
-		// H264
-		if ((*pmt->Subtype() == x264) || 
-			(*pmt->Subtype() == H264) ||
-			(*pmt->Subtype() == h264) ||
-			(*pmt->Subtype() == avc1) ||
-			(*pmt->Subtype() == __uuidof(CLSID_H264_BSF)))
-		{
-			// BSF
-			if ((*pmt->FormatType() == FORMAT_VideoInfo) || (*pmt->FormatType() == FORMAT_VideoInfo2))
-			{
-				return new H264ByteStreamHandler(pmt);
-			}
-			// length-prepended
-			if (*pmt->FormatType() == FORMAT_MPEG2Video)
-			{
-	            return new H264Handler(pmt);
-			}
-		}
+        // H264
+        if ((*pmt->Subtype() == x264) || 
+            (*pmt->Subtype() == H264) ||
+            (*pmt->Subtype() == h264) ||
+            (*pmt->Subtype() == avc1) ||
+            (*pmt->Subtype() == __uuidof(CLSID_H264_BSF)))
+        {
+            // BSF
+            if ((*pmt->FormatType() == FORMAT_VideoInfo) || (*pmt->FormatType() == FORMAT_VideoInfo2))
+            {
+                return new H264ByteStreamHandler(pmt);
+            }
+            // length-prepended
+            if (*pmt->FormatType() == FORMAT_MPEG2Video)
+            {
+                return new H264Handler(pmt);
+            }
+        }
 
-		// other: uncompressed (checked in CanSupport)
-		FOURCCMap fcc(pmt->subtype.Data1);
-		if ((fcc == *pmt->Subtype()) && (*pmt->FormatType() == FORMAT_VideoInfo))
-		{
-			VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)pmt->Format();
-			if ((pvi->bmiHeader.biBitCount > 0) && (DIBSIZE(pvi->bmiHeader) == pmt->GetSampleSize()))
-			{
-				return new YUVVideoHandler(pmt);
-			}
-		}
+        // other: uncompressed (checked in CanSupport)
+        FOURCCMap fcc(pmt->subtype.Data1);
+        if ((fcc == *pmt->Subtype()) && (*pmt->FormatType() == FORMAT_VideoInfo))
+        {
+            VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)pmt->Format();
+            if ((pvi->bmiHeader.biBitCount > 0) && (DIBSIZE(pvi->bmiHeader) == pmt->GetSampleSize()))
+            {
+                return new YUVVideoHandler(pmt);
+            }
+        }
 
     } else if (*pmt->Type() == MEDIATYPE_Audio)
     {
@@ -427,8 +427,8 @@ TypeHandler::Make(const CMediaType* pmt)
 HRESULT 
 TypeHandler::WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual)
 {
-	*pcActual = cBytes;
-	return patm->Append(pData, cBytes);
+    *pcActual = cBytes;
+    return patm->Append(pData, cBytes);
 }
 
 
@@ -437,28 +437,28 @@ DivxHandler::DivxHandler(const CMediaType* pmt)
 : m_mt(*pmt),
   m_cConfig(0)
 {
-	if ((*m_mt.FormatType() == FORMAT_VideoInfo) && 
-		(m_mt.FormatLength() > sizeof(VIDEOINFOHEADER)))
-	{
-		m_cConfig = m_mt.FormatLength() - sizeof(VIDEOINFOHEADER);
-		m_pConfig = new BYTE[m_cConfig];
-		const BYTE* pExtra = m_mt.Format() + sizeof(VIDEOINFOHEADER);
-		CopyMemory(m_pConfig, pExtra, m_cConfig);
-	}
+    if ((*m_mt.FormatType() == FORMAT_VideoInfo) && 
+        (m_mt.FormatLength() > sizeof(VIDEOINFOHEADER)))
+    {
+        m_cConfig = m_mt.FormatLength() - sizeof(VIDEOINFOHEADER);
+        m_pConfig = new BYTE[m_cConfig];
+        const BYTE* pExtra = m_mt.Format() + sizeof(VIDEOINFOHEADER);
+        CopyMemory(m_pConfig, pExtra, m_cConfig);
+    }
 }
 
 long 
 DivxHandler::Width()
 {
     VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-	return pvi->bmiHeader.biWidth;
+    return pvi->bmiHeader.biWidth;
 }
 
 long 
 DivxHandler::Height()
 {
     VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-	return abs(pvi->bmiHeader.biHeight);
+    return abs(pvi->bmiHeader.biHeight);
 }
 
 void 
@@ -509,7 +509,7 @@ DivxHandler::WriteDescriptor(Atom* patm, int id, int dataref, long scale)
     dcfg.Append(b, 13);
     Descriptor dsi(Descriptor::Decoder_Specific_Info);
 
-	dsi.Append(m_pConfig, m_cConfig);
+    dsi.Append(m_pConfig, m_cConfig);
     dcfg.Append(&dsi);
     es.Append(&dcfg);
     Descriptor sl(Descriptor::SL_Config);
@@ -535,32 +535,32 @@ inline bool NextStartCode(const BYTE*&pBuffer, long& cBytes)
 HRESULT 
 DivxHandler::WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual)
 {
-	if (m_cConfig == 0)
-	{
-		const BYTE* p = pData;
-		long c = cBytes;
-		const BYTE* pVOL = NULL;
-		while (NextStartCode(p, c))
-		{
-			if (pVOL == NULL)
-			{
-				if (p[3] == 0x20)
-				{
-					pVOL = p;
-				}
-			}
-			else
-			{
-				m_cConfig = long(p - pVOL);
-				m_pConfig = new BYTE[m_cConfig];
-				CopyMemory(m_pConfig, pVOL, m_cConfig);
-				break;
-			}
-			p += 4;
-			c -= 4;
-		}
-	}
-	return __super::WriteData(patm, pData, cBytes, pcActual);
+    if (m_cConfig == 0)
+    {
+        const BYTE* p = pData;
+        long c = cBytes;
+        const BYTE* pVOL = NULL;
+        while (NextStartCode(p, c))
+        {
+            if (pVOL == NULL)
+            {
+                if (p[3] == 0x20)
+                {
+                    pVOL = p;
+                }
+            }
+            else
+            {
+                m_cConfig = long(p - pVOL);
+                m_pConfig = new BYTE[m_cConfig];
+                CopyMemory(m_pConfig, pVOL, m_cConfig);
+                break;
+            }
+            p += 4;
+            c -= 4;
+        }
+    }
+    return __super::WriteData(patm, pData, cBytes, pcActual);
 }
 
 long 
@@ -632,26 +632,26 @@ AACHandler::WriteDescriptor(Atom* patm, int id, int dataref, long scale)
     pesd->Close();
     psd->Close();
 }
-	
+    
 LONGLONG 
 H264Handler::FrameDuration()
 {
-	MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
-	return pvi->hdr.AvgTimePerFrame;
+    MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
+    return pvi->hdr.AvgTimePerFrame;
 }
 
 long 
 H264Handler::Width()
 {
-	MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
-	return pvi->hdr.bmiHeader.biWidth;
+    MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
+    return pvi->hdr.bmiHeader.biWidth;
 }
 
 long 
 H264Handler::Height()
 {
-	MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
-	return abs(pvi->hdr.bmiHeader.biHeight);
+    MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
+    return abs(pvi->hdr.bmiHeader.biHeight);
 }
 
 void 
@@ -661,7 +661,7 @@ H264Handler::WriteDescriptor(Atom* patm, int id, int dataref, long scale)
     UNREFERENCED_PARAMETER(id);
     smart_ptr<Atom> psd = patm->CreateAtom('avc1');
 
-	MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
+    MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
     int width = pvi->hdr.bmiHeader.biWidth;
     int height = abs(pvi->hdr.bmiHeader.biHeight);
 
@@ -715,129 +715,129 @@ H264Handler::WriteDescriptor(Atom* patm, int id, int dataref, long scale)
 
 struct QTVideo 
 {
-	BYTE	reserved1[6];		// 0
-	USHORT	dataref;
-	
-	USHORT	version;			// 0
-	USHORT	revision;			// 0
-	ULONG	vendor;
+    BYTE    reserved1[6];       // 0
+    USHORT  dataref;
+    
+    USHORT  version;            // 0
+    USHORT  revision;           // 0
+    ULONG   vendor;
 
-	ULONG	temporal_compression;
-	ULONG	spatial_compression;
+    ULONG   temporal_compression;
+    ULONG   spatial_compression;
 
-	USHORT	width;
-	USHORT	height;
-	
-	ULONG	horz_resolution;	// 00 48 00 00
-	ULONG	vert_resolution;	// 00 48 00 00
-	ULONG	reserved2;			// 0
-	USHORT	frames_per_sample;	// 1
-	BYTE	codec_name[32];		// pascal string - ascii, first byte is char count
-	USHORT	bit_depth;
-	USHORT	colour_table_id;		// ff ff
+    USHORT  width;
+    USHORT  height;
+    
+    ULONG   horz_resolution;    // 00 48 00 00
+    ULONG   vert_resolution;    // 00 48 00 00
+    ULONG   reserved2;          // 0
+    USHORT  frames_per_sample;  // 1
+    BYTE    codec_name[32];     // pascal string - ascii, first byte is char count
+    USHORT  bit_depth;
+    USHORT  colour_table_id;        // ff ff
 };
 
 inline USHORT Swap2Bytes(int x)
 {
-	return (USHORT) (((x & 0xff) << 8) | ((x >> 8) & 0xff));
+    return (USHORT) (((x & 0xff) << 8) | ((x >> 8) & 0xff));
 }
 inline DWORD Swap4Bytes(DWORD x)
 {
-	return ((x & 0xff) << 24) |
-		   ((x & 0xff00) << 8) |
-		   ((x & 0xff0000) >> 8) |
-		   ((x >> 24) & 0xff);
+    return ((x & 0xff) << 24) |
+           ((x & 0xff00) << 8) |
+           ((x & 0xff0000) >> 8) |
+           ((x >> 24) & 0xff);
 }
 
 long 
 YUVVideoHandler::Width()
 {
-	if (*m_mt.FormatType() == FORMAT_VideoInfo)
-	{
-		VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-		return pvi->bmiHeader.biWidth;
-	}
-	else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
-	{
-		VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
-		return pvi->bmiHeader.biWidth;
-	}
-	else
-	{
-		return 0;
-	}
+    if (*m_mt.FormatType() == FORMAT_VideoInfo)
+    {
+        VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
+        return pvi->bmiHeader.biWidth;
+    }
+    else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
+    {
+        VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
+        return pvi->bmiHeader.biWidth;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 long 
 YUVVideoHandler::Height()
 {
-	if (*m_mt.FormatType() == FORMAT_VideoInfo)
-	{
-		VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-		return abs(pvi->bmiHeader.biHeight);
-	}
-	else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
-	{
-		VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
-		return abs(pvi->bmiHeader.biHeight);
-	}
-	else
-	{
-		return 0;
-	}
+    if (*m_mt.FormatType() == FORMAT_VideoInfo)
+    {
+        VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
+        return abs(pvi->bmiHeader.biHeight);
+    }
+    else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
+    {
+        VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
+        return abs(pvi->bmiHeader.biHeight);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void
 YUVVideoHandler::WriteDescriptor(Atom* patm, int id, int dataref, long scale)
 {
-	UNREFERENCED_PARAMETER(scale);
-	UNREFERENCED_PARAMETER(dataref);
-	UNREFERENCED_PARAMETER(id);
+    UNREFERENCED_PARAMETER(scale);
+    UNREFERENCED_PARAMETER(dataref);
+    UNREFERENCED_PARAMETER(id);
 
-	FOURCCMap fcc = m_mt.Subtype();
-	smart_ptr<Atom> psd = patm->CreateAtom(Swap4Bytes(fcc.GetFOURCC()));
+    FOURCCMap fcc = m_mt.Subtype();
+    smart_ptr<Atom> psd = patm->CreateAtom(Swap4Bytes(fcc.GetFOURCC()));
 
-	int cx, cy, depth;
-	if (*m_mt.FormatType() == FORMAT_VideoInfo)
-	{
-		VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-		cx = pvi->bmiHeader.biWidth;
-		cy = abs(pvi->bmiHeader.biHeight);
-		depth = pvi->bmiHeader.biBitCount;
-	}
-	else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
-	{
-		VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
-		cx = pvi->bmiHeader.biWidth;
-		cy = abs(pvi->bmiHeader.biHeight);
-		depth = pvi->bmiHeader.biBitCount;
-	}
-	else
-	{
-		return;
-	}
+    int cx, cy, depth;
+    if (*m_mt.FormatType() == FORMAT_VideoInfo)
+    {
+        VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
+        cx = pvi->bmiHeader.biWidth;
+        cy = abs(pvi->bmiHeader.biHeight);
+        depth = pvi->bmiHeader.biBitCount;
+    }
+    else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
+    {
+        VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
+        cx = pvi->bmiHeader.biWidth;
+        cy = abs(pvi->bmiHeader.biHeight);
+        depth = pvi->bmiHeader.biBitCount;
+    }
+    else
+    {
+        return;
+    }
 
-	QTVideo fmt;
-	ZeroMemory(&fmt, sizeof(fmt));
-	// remember we must byte-swap all data
-	fmt.width = Swap2Bytes(cx);
-	fmt.height = Swap2Bytes(cy);
-	fmt.bit_depth = Swap2Bytes(depth);
+    QTVideo fmt;
+    ZeroMemory(&fmt, sizeof(fmt));
+    // remember we must byte-swap all data
+    fmt.width = Swap2Bytes(cx);
+    fmt.height = Swap2Bytes(cy);
+    fmt.bit_depth = Swap2Bytes(depth);
 
-	fmt.reserved1[5] = 1;
-	fmt.vert_resolution = fmt.horz_resolution = 0x480000;
-	fmt.frames_per_sample  = Swap2Bytes(1);
-	fmt.colour_table_id = 0xffff;
+    fmt.reserved1[5] = 1;
+    fmt.vert_resolution = fmt.horz_resolution = 0x480000;
+    fmt.frames_per_sample  = Swap2Bytes(1);
+    fmt.colour_table_id = 0xffff;
 
-	// pascal string codec name
-	const char* pName = "YUV Video";
-	int cch = lstrlenA(pName);
-	CopyMemory(&fmt.codec_name[1], pName, cch);
-	fmt.codec_name[0] = (BYTE)cch;
+    // pascal string codec name
+    const char* pName = "YUV Video";
+    int cch = lstrlenA(pName);
+    CopyMemory(&fmt.codec_name[1], pName, cch);
+    fmt.codec_name[0] = (BYTE)cch;
 
-	psd->Append((const BYTE*)&fmt, sizeof(fmt));
+    psd->Append((const BYTE*)&fmt, sizeof(fmt));
 
-	psd->Close();
+    psd->Close();
 }
 
 long 
@@ -926,33 +926,33 @@ WaveHandler::CanTruncate()
     WAVEFORMATEX* pwfx = (WAVEFORMATEX*)m_mt.Format();
     if (pwfx->wFormatTag == WAVE_FORMAT_PCM)
     {
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 bool 
 WaveHandler::Truncate(IMediaSample* pSample, REFERENCE_TIME tNewStart)
 {
-	if (!CanTruncate())
-	{
-		return false;
-	}
-	REFERENCE_TIME tStart, tEnd;
-	if (pSample->GetTime(&tStart, &tEnd) != S_OK)
-	{
-		return false;
-	}
+    if (!CanTruncate())
+    {
+        return false;
+    }
+    REFERENCE_TIME tStart, tEnd;
+    if (pSample->GetTime(&tStart, &tEnd) != S_OK)
+    {
+        return false;
+    }
     WAVEFORMATEX* pwfx = (WAVEFORMATEX*)m_mt.Format();
-	LONGLONG tDiff = tNewStart - tStart;
-	long cBytesExcess = long (tDiff * pwfx->nSamplesPerSec / UNITS) * pwfx->nBlockAlign;
-	long cData = pSample->GetActualDataLength();
-	BYTE* pBuffer;
-	pSample->GetPointer(&pBuffer);
-	MoveMemory(pBuffer, pBuffer+cBytesExcess, cData - cBytesExcess);
-	pSample->SetActualDataLength(cData - cBytesExcess);
-	pSample->SetTime(&tNewStart, &tEnd);
-	return true;
+    LONGLONG tDiff = tNewStart - tStart;
+    long cBytesExcess = long (tDiff * pwfx->nSamplesPerSec / UNITS) * pwfx->nBlockAlign;
+    long cData = pSample->GetActualDataLength();
+    BYTE* pBuffer;
+    pSample->GetPointer(&pBuffer);
+    MoveMemory(pBuffer, pBuffer+cBytesExcess, cData - cBytesExcess);
+    pSample->SetActualDataLength(cData - cBytesExcess);
+    pSample->SetTime(&tNewStart, &tEnd);
+    return true;
 
 }
 
@@ -1047,31 +1047,31 @@ H264ByteStreamHandler::H264ByteStreamHandler(const CMediaType* pmt)
   m_bSPS(false),
   m_bPPS(false)
 {
-	if (*m_mt.FormatType() == FORMAT_MPEG2Video)
-	{
-		MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
-		m_tFrame = pvi->hdr.AvgTimePerFrame;
-		m_cx = pvi->hdr.bmiHeader.biWidth;
-		m_cy = pvi->hdr.bmiHeader.biHeight;
-	}
-	else if (*m_mt.FormatType() == FORMAT_VideoInfo)
-	{
-		VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
-		m_tFrame = pvi->AvgTimePerFrame;
-		m_cx = pvi->bmiHeader.biWidth;
-		m_cy = pvi->bmiHeader.biHeight;
-	}
-	else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
-	{
-		VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
-		m_tFrame = pvi->AvgTimePerFrame;
-		m_cx = pvi->bmiHeader.biWidth;
-		m_cy = pvi->bmiHeader.biHeight;
-	}
-	else
-	{
-		m_tFrame = m_cx = m_cy = 0;
-	}
+    if (*m_mt.FormatType() == FORMAT_MPEG2Video)
+    {
+        MPEG2VIDEOINFO* pvi = (MPEG2VIDEOINFO*)m_mt.Format();
+        m_tFrame = pvi->hdr.AvgTimePerFrame;
+        m_cx = pvi->hdr.bmiHeader.biWidth;
+        m_cy = pvi->hdr.bmiHeader.biHeight;
+    }
+    else if (*m_mt.FormatType() == FORMAT_VideoInfo)
+    {
+        VIDEOINFOHEADER* pvi = (VIDEOINFOHEADER*)m_mt.Format();
+        m_tFrame = pvi->AvgTimePerFrame;
+        m_cx = pvi->bmiHeader.biWidth;
+        m_cy = pvi->bmiHeader.biHeight;
+    }
+    else if (*m_mt.FormatType() == FORMAT_VideoInfo2)
+    {
+        VIDEOINFOHEADER2* pvi = (VIDEOINFOHEADER2*)m_mt.Format();
+        m_tFrame = pvi->AvgTimePerFrame;
+        m_cx = pvi->bmiHeader.biWidth;
+        m_cy = pvi->bmiHeader.biHeight;
+    }
+    else
+    {
+        m_tFrame = m_cx = m_cy = 0;
+    }
 }
 
 void 
@@ -1081,28 +1081,28 @@ H264ByteStreamHandler::WriteDescriptor(Atom* patm, int id, int dataref, long sca
     UNREFERENCED_PARAMETER(id);
     smart_ptr<Atom> psd = patm->CreateAtom('avc1');
 
-	// locate param sets in parse buffer
-	NALUnit sps, pps;
-	NALUnit nal;
-	const BYTE* pBuffer = m_ParamSets.Data();
-	long cBytes = m_ParamSets.Size();
-	while (nal.Parse(pBuffer, cBytes, nalunit_length_field, true))
-	{
-		if (nal.Type() == NALUnit::NAL_Sequence_Params)
-		{
-			sps = nal;
-		}
-		else if (nal.Type() == NALUnit::NAL_Picture_Params)
-		{
-			pps = nal;
-		}
-		const BYTE* pNext = nal.Start() + nal.Length();
-		cBytes-= long(pNext - pBuffer);
-		pBuffer = pNext;
-	}
+    // locate param sets in parse buffer
+    NALUnit sps, pps;
+    NALUnit nal;
+    const BYTE* pBuffer = m_ParamSets.Data();
+    long cBytes = m_ParamSets.Size();
+    while (nal.Parse(pBuffer, cBytes, nalunit_length_field, true))
+    {
+        if (nal.Type() == NALUnit::NAL_Sequence_Params)
+        {
+            sps = nal;
+        }
+        else if (nal.Type() == NALUnit::NAL_Picture_Params)
+        {
+            pps = nal;
+        }
+        const BYTE* pNext = nal.Start() + nal.Length();
+        cBytes-= long(pNext - pBuffer);
+        pBuffer = pNext;
+    }
 
-	SeqParamSet seq;
-	seq.Parse(&sps);
+    SeqParamSet seq;
+    seq.Parse(&sps);
 
     BYTE b[78];
     ZeroMemory(b, 78);
@@ -1126,16 +1126,16 @@ H264ByteStreamHandler::WriteDescriptor(Atom* patm, int id, int dataref, long sca
 
     b[5] = 0xe1;        // 1 SPS
 
-	// in the descriptor, the length field for param set nalus is always 2
-	pesd->Append(b, 6);
-	WriteVariable(sps.Length(), b, 2);
-	pesd->Append(b, 2);
-	pesd->Append(sps.Start(), sps.Length());
+    // in the descriptor, the length field for param set nalus is always 2
+    pesd->Append(b, 6);
+    WriteVariable(sps.Length(), b, 2);
+    pesd->Append(b, 2);
+    pesd->Append(sps.Start(), sps.Length());
 
     b[0] = 1;   // 1 PPS
-	WriteVariable(pps.Length(), b+1, 2);
-	pesd->Append(b, 3);
-	pesd->Append(pps.Start(), pps.Length());
+    WriteVariable(pps.Length(), b+1, 2);
+    pesd->Append(b, 3);
+    pesd->Append(pps.Start(), pps.Length());
 
     pesd->Close();
     psd->Close();
@@ -1144,47 +1144,47 @@ H264ByteStreamHandler::WriteDescriptor(Atom* patm, int id, int dataref, long sca
 LONGLONG 
 H264ByteStreamHandler::FrameDuration()
 {
-	return m_tFrame;
+    return m_tFrame;
 }
 
 HRESULT 
 H264ByteStreamHandler::WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual)
 {
-	int cActual = 0;
+    int cActual = 0;
 
-	NALUnit nal;
-	while(nal.Parse(pData, cBytes, 0, true))
-	{
-		const BYTE* pNext = nal.Start() + nal.Length();
-		cBytes-= long(pNext - pData);
-		pData = pNext;
+    NALUnit nal;
+    while(nal.Parse(pData, cBytes, 0, true))
+    {
+        const BYTE* pNext = nal.Start() + nal.Length();
+        cBytes-= long(pNext - pData);
+        pData = pNext;
 
-		// convert length to correct byte order
-		BYTE length[nalunit_length_field];
-		WriteVariable(nal.Length(), length, nalunit_length_field);
+        // convert length to correct byte order
+        BYTE length[nalunit_length_field];
+        WriteVariable(nal.Length(), length, nalunit_length_field);
 
-		if (!m_bSPS && (nal.Type() == NALUnit::NAL_Sequence_Params))
-		{
-			// store in length-preceded format for use in WriteDescriptor
-			m_bSPS = true;
-			m_ParamSets.Append(length, nalunit_length_field);
-			m_ParamSets.Append(nal.Start(), nal.Length());
-		}
-		else if (!m_bPPS && (nal.Type() == NALUnit::NAL_Picture_Params))
-		{
-			// store in length-preceded format for use in WriteDescriptor
-			m_bPPS = true;
-			m_ParamSets.Append(length, nalunit_length_field);
-			m_ParamSets.Append(nal.Start(), nal.Length());
-		}
+        if (!m_bSPS && (nal.Type() == NALUnit::NAL_Sequence_Params))
+        {
+            // store in length-preceded format for use in WriteDescriptor
+            m_bSPS = true;
+            m_ParamSets.Append(length, nalunit_length_field);
+            m_ParamSets.Append(nal.Start(), nal.Length());
+        }
+        else if (!m_bPPS && (nal.Type() == NALUnit::NAL_Picture_Params))
+        {
+            // store in length-preceded format for use in WriteDescriptor
+            m_bPPS = true;
+            m_ParamSets.Append(length, nalunit_length_field);
+            m_ParamSets.Append(nal.Start(), nal.Length());
+        }
 
-		// write length and data to file
-		patm->Append(length, nalunit_length_field);
-		patm->Append(nal.Start(), nal.Length());
-		cActual += nalunit_length_field + nal.Length();
-	}
+        // write length and data to file
+        patm->Append(length, nalunit_length_field);
+        patm->Append(nal.Start(), nal.Length());
+        cActual += nalunit_length_field + nal.Length();
+    }
 
-	*pcActual = cActual;
-	return S_OK;
+    *pcActual = cActual;
+    return S_OK;
 }
 

@@ -63,23 +63,23 @@ public:
     virtual void WriteDescriptor(Atom* patm, int id, int dataref, long scale) = 0;
     virtual long SampleRate() = 0;
     virtual long Scale() = 0;
-	virtual long Width() = 0;
-	virtual long Height() = 0;
+    virtual long Width() = 0;
+    virtual long Height() = 0;
 
-	virtual bool CanTruncate() { return false; }
-	virtual bool Truncate(IMediaSample* pSample, REFERENCE_TIME tNewStart) 
-	{ 
-		UNREFERENCED_PARAMETER(pSample);
-		UNREFERENCED_PARAMETER(tNewStart);
-		return false; 
-	}
-	virtual LONGLONG FrameDuration() 
-	{
-		// default answer
-		return UNITS / SampleRate();
-	}
+    virtual bool CanTruncate() { return false; }
+    virtual bool Truncate(IMediaSample* pSample, REFERENCE_TIME tNewStart) 
+    { 
+        UNREFERENCED_PARAMETER(pSample);
+        UNREFERENCED_PARAMETER(tNewStart);
+        return false; 
+    }
+    virtual LONGLONG FrameDuration() 
+    {
+        // default answer
+        return UNITS / SampleRate();
+    }
 
-	virtual HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
+    virtual HRESULT WriteData(Atom* patm, const BYTE* pData, int cBytes, int* pcActual);
     static bool CanSupport(const CMediaType* pmt);
     static TypeHandler* Make(const CMediaType* pmt);
 };

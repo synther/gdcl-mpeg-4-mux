@@ -152,11 +152,11 @@ Mpeg4Mux::GetPin(int n)
 void
 Mpeg4Mux::CreateInput()
 {
-	ostringstream strm;
-	strm << "Input " << m_pInputs.size() + 1;
-	_bstr_t str = strm.str().c_str();
+    ostringstream strm;
+    strm << "Input " << m_pInputs.size() + 1;
+    _bstr_t str = strm.str().c_str();
 
-	HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
     MuxInput* pPin = new MuxInput(this, &m_csFilter, &hr, str, (int) (m_pInputs.size()));
     pPin->AddRef();
     m_pInputs.push_back(pPin);
@@ -219,13 +219,13 @@ Mpeg4Mux::Stop()
     HRESULT hr = S_OK;
     if (m_State != State_Stopped)
     {
-		// ensure that queue-writing is stopped
+        // ensure that queue-writing is stopped
         if (m_pMovie)
         {
             m_pMovie->Stop();
 
-			// switch to IStream for post-run fixup.
-			m_pOutput->UseIStream();
+            // switch to IStream for post-run fixup.
+            m_pOutput->UseIStream();
         }
 
         // stop all input pins
@@ -233,8 +233,8 @@ Mpeg4Mux::Stop()
 
         if (m_pMovie)
         {
-			// write all queued data
-			m_pMovie->WriteOnStop();
+            // write all queued data
+            m_pMovie->WriteOnStop();
 
             // write all metadata
             hr = m_pMovie->Close(&m_tWritten);
@@ -266,7 +266,7 @@ MuxInput::MuxInput(Mpeg4Mux* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pNa
   m_pTrack(NULL),
   CBaseInputPin(NAME("MuxInput"), pFilter, pLock, phr, pName)
 {
-	ZeroMemory(&m_StreamInfo, sizeof(m_StreamInfo));
+    ZeroMemory(&m_StreamInfo, sizeof(m_StreamInfo));
 }
 
 HRESULT 
@@ -300,24 +300,24 @@ MuxInput::Receive(IMediaSample* pSample)
         return E_FAIL;
     }
 
-	if (ShouldDiscard(pSample))
-	{
-		return S_OK;
-	}
-	if (m_pCopyAlloc)
-	{
-		IMediaSamplePtr pOurs;
-		hr = m_pCopyAlloc->GetBuffer(&pOurs, NULL, NULL, 0);
-		if (SUCCEEDED(hr))
-		{
-			hr = CopySample(pSample, pOurs);
-		}
-		if (SUCCEEDED(hr))
-		{
-			hr = m_pTrack->Add(pOurs);
-		}
-		return hr;
-	}
+    if (ShouldDiscard(pSample))
+    {
+        return S_OK;
+    }
+    if (m_pCopyAlloc)
+    {
+        IMediaSamplePtr pOurs;
+        hr = m_pCopyAlloc->GetBuffer(&pOurs, NULL, NULL, 0);
+        if (SUCCEEDED(hr))
+        {
+            hr = CopySample(pSample, pOurs);
+        }
+        if (SUCCEEDED(hr))
+        {
+            hr = m_pTrack->Add(pOurs);
+        }
+        return hr;
+    }
 
     return m_pTrack->Add(pSample);
 }
@@ -331,7 +331,7 @@ MuxInput::CopySample(IMediaSample* pIn, IMediaSample* pOut)
     BYTE* pSrc;
     pIn->GetPointer(&pSrc);
 
-	long cOut = pOut->GetSize();
+    long cOut = pOut->GetSize();
     long cIn = pIn->GetActualDataLength();
     if (cIn > cOut)
     {
@@ -348,10 +348,10 @@ MuxInput::CopySample(IMediaSample* pIn, IMediaSample* pOut)
         pOut->SetTime(&tStart, &tEnd);
     }
 
-	if (SUCCEEDED(pIn->GetMediaTime(&tStart, &tEnd)))
-	{
-		pOut->SetMediaTime(&tStart, &tEnd);
-	}
+    if (SUCCEEDED(pIn->GetMediaTime(&tStart, &tEnd)))
+    {
+        pOut->SetMediaTime(&tStart, &tEnd);
+    }
 
     if (pIn->IsSyncPoint() == S_OK)
     {
@@ -365,7 +365,7 @@ MuxInput::CopySample(IMediaSample* pIn, IMediaSample* pOut)
     {
         pOut->SetPreroll(true);
     }
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP 
@@ -405,10 +405,10 @@ MuxInput::Active()
     HRESULT hr = CBaseInputPin::Active();
     if (SUCCEEDED(hr))
     {
-		if (m_pCopyAlloc)
-		{
-			m_pCopyAlloc->Commit();
-		}
+        if (m_pCopyAlloc)
+        {
+            m_pCopyAlloc->Commit();
+        }
 
         m_pTrack = m_pMux->MakeTrack(m_index, &m_mt);
     }
@@ -419,17 +419,17 @@ HRESULT
 MuxInput::Inactive()
 {
     // ensure that there are no more writes and no blocking threads
-	if (m_pTrack)
-	{
-		m_pTrack->Stop(false);
-		m_pTrack = NULL;
-	}
+    if (m_pTrack)
+    {
+        m_pTrack->Stop(false);
+        m_pTrack = NULL;
+    }
     HRESULT hr = CBaseInputPin::Inactive();
-	if (m_pCopyAlloc)
-	{
-		m_pCopyAlloc->Decommit();
-	}
-	return hr;
+    if (m_pCopyAlloc)
+    {
+        m_pCopyAlloc->Decommit();
+    }
+    return hr;
 }
 
 HRESULT 
@@ -467,136 +467,136 @@ MuxInput::GetAllocator(IMemAllocator** ppAllocator)
     return pAlloc->QueryInterface(IID_IMemAllocator, (void**)ppAllocator);
 }
 
-	
+    
 STDMETHODIMP 
 MuxInput::NotifyAllocator(IMemAllocator* pAlloc, BOOL bReadOnly)
 {
-	ALLOCATOR_PROPERTIES propAlloc;
-	pAlloc->GetProperties(&propAlloc);
+    ALLOCATOR_PROPERTIES propAlloc;
+    pAlloc->GetProperties(&propAlloc);
 
-	if (propAlloc.cBuffers < 20)
-	{
-		// too few buffers -- we need to copy
-		HRESULT hr = S_OK;
-		m_pCopyAlloc = new MuxAllocator(NULL, &hr, &m_mt);
-		propAlloc.cBuffers = 100;
-		ALLOCATOR_PROPERTIES propActual;
-		m_pCopyAlloc->SetProperties(&propAlloc, &propActual);
-	}
-	return __super::NotifyAllocator(pAlloc, bReadOnly);
+    if (propAlloc.cBuffers < 20)
+    {
+        // too few buffers -- we need to copy
+        HRESULT hr = S_OK;
+        m_pCopyAlloc = new MuxAllocator(NULL, &hr, &m_mt);
+        propAlloc.cBuffers = 100;
+        ALLOCATOR_PROPERTIES propActual;
+        m_pCopyAlloc->SetProperties(&propAlloc, &propActual);
+    }
+    return __super::NotifyAllocator(pAlloc, bReadOnly);
 }
-	
+    
 STDMETHODIMP
 MuxInput::StartAt(const REFERENCE_TIME* ptStart, DWORD dwCookie)
 {
-	if (ptStart == NULL)
-	{
-		m_StreamInfo.dwFlags &= ~AM_STREAM_INFO_DISCARDING;
-	}
-	else if (*ptStart == MAXLONGLONG) 
-	{
-		// cancels a start request (but does not stop)
-		m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_START_DEFINED);
+    if (ptStart == NULL)
+    {
+        m_StreamInfo.dwFlags &= ~AM_STREAM_INFO_DISCARDING;
+    }
+    else if (*ptStart == MAXLONGLONG) 
+    {
+        // cancels a start request (but does not stop)
+        m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_START_DEFINED);
 
-		// if running, and stop pending, then by some wierd overloading of the spec, this means start now
-		if (m_pMux->IsActive() && (m_StreamInfo.dwFlags & AM_STREAM_INFO_STOP_DEFINED))
-		{
-			m_StreamInfo.dwFlags &= ~AM_STREAM_INFO_DISCARDING;
-		}
-	}
-	else
-	{
-		m_StreamInfo.dwFlags |= (AM_STREAM_INFO_START_DEFINED | AM_STREAM_INFO_DISCARDING);
-		m_StreamInfo.dwStartCookie = dwCookie;
-		m_StreamInfo.tStart = *ptStart;
-		m_pTrack->SetStartAt(m_StreamInfo.tStart);
-		DbgLog((LOG_TRACE, 0, "Mux StartAt %d ms", long(m_StreamInfo.tStart/10000)));
-	}
-	return S_OK;
-	
+        // if running, and stop pending, then by some wierd overloading of the spec, this means start now
+        if (m_pMux->IsActive() && (m_StreamInfo.dwFlags & AM_STREAM_INFO_STOP_DEFINED))
+        {
+            m_StreamInfo.dwFlags &= ~AM_STREAM_INFO_DISCARDING;
+        }
+    }
+    else
+    {
+        m_StreamInfo.dwFlags |= (AM_STREAM_INFO_START_DEFINED | AM_STREAM_INFO_DISCARDING);
+        m_StreamInfo.dwStartCookie = dwCookie;
+        m_StreamInfo.tStart = *ptStart;
+        m_pTrack->SetStartAt(m_StreamInfo.tStart);
+        DbgLog((LOG_TRACE, 0, "Mux StartAt %d ms", long(m_StreamInfo.tStart/10000)));
+    }
+    return S_OK;
+    
 }
 
 STDMETHODIMP
 MuxInput::StopAt(const REFERENCE_TIME* ptStop, BOOL bSendExtra, DWORD dwCookie)
 {
-	CAutoLock lock(&m_csStreamControl);
+    CAutoLock lock(&m_csStreamControl);
 
-	if (ptStop == NULL)
-	{
-		m_StreamInfo.dwFlags |= AM_STREAM_INFO_DISCARDING;
-	}
-	else if (*ptStop == MAXLONGLONG) 
-	{
-		m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_STOP_DEFINED);
-	}
-	else
-	{
-		m_StreamInfo.dwFlags |= AM_STREAM_INFO_STOP_DEFINED | (bSendExtra ? AM_STREAM_INFO_STOP_SEND_EXTRA : 0);
-		m_StreamInfo.dwStopCookie = dwCookie;
-		m_StreamInfo.tStop = *ptStop;
-		DbgLog((LOG_TRACE, 0, "Mux StopAt %d ms", long(m_StreamInfo.tStop/10000)));
-	}
-	return S_OK;
+    if (ptStop == NULL)
+    {
+        m_StreamInfo.dwFlags |= AM_STREAM_INFO_DISCARDING;
+    }
+    else if (*ptStop == MAXLONGLONG) 
+    {
+        m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_STOP_DEFINED);
+    }
+    else
+    {
+        m_StreamInfo.dwFlags |= AM_STREAM_INFO_STOP_DEFINED | (bSendExtra ? AM_STREAM_INFO_STOP_SEND_EXTRA : 0);
+        m_StreamInfo.dwStopCookie = dwCookie;
+        m_StreamInfo.tStop = *ptStop;
+        DbgLog((LOG_TRACE, 0, "Mux StopAt %d ms", long(m_StreamInfo.tStop/10000)));
+    }
+    return S_OK;
 }
 
 STDMETHODIMP
 MuxInput::GetInfo(AM_STREAM_INFO* pInfo)
 {
-	CAutoLock lock(&m_csStreamControl);
+    CAutoLock lock(&m_csStreamControl);
 
-	*pInfo = m_StreamInfo;
-	return S_OK;
+    *pInfo = m_StreamInfo;
+    return S_OK;
 }
 
-	
+    
 bool 
 MuxInput::ShouldDiscard(IMediaSample* pSample)
 {
-	CAutoLock lock(&m_csStreamControl);
-	if (m_StreamInfo.dwFlags & AM_STREAM_INFO_DISCARDING)
-	{
-		if (m_StreamInfo.dwFlags & AM_STREAM_INFO_START_DEFINED)
-		{
-			REFERENCE_TIME tStart, tStop;
-			if ((pSample->GetTime(&tStart, &tStop) == S_OK) &&
-				(tStop > m_StreamInfo.tStart))
-			{
-				m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_DISCARDING | AM_STREAM_INFO_START_DEFINED);
-				if (m_StreamInfo.dwStartCookie)
-				{
-					m_pMux->NotifyEvent(EC_STREAM_CONTROL_STARTED, (LONG_PTR) this, m_StreamInfo.dwStartCookie);
-					m_StreamInfo.dwStartCookie = 0;
-				}
-				if ((tStart < m_StreamInfo.tStart) && m_pTrack->Handler()->CanTruncate())
-				{
-					m_pTrack->Handler()->Truncate(pSample, m_StreamInfo.tStart);
-				}
-			}
-		}
-	}
-	else
-	{
-		if (m_StreamInfo.dwFlags & AM_STREAM_INFO_STOP_DEFINED)
-		{
-			REFERENCE_TIME tStart, tStop;
-			if (pSample->GetTime(&tStart, &tStop) == S_OK)
-			{
-				DbgLog((LOG_TRACE, 0, "Pending stop %d ms, sample %d", long(m_StreamInfo.tStop/10000), long(tStart/10000)));
+    CAutoLock lock(&m_csStreamControl);
+    if (m_StreamInfo.dwFlags & AM_STREAM_INFO_DISCARDING)
+    {
+        if (m_StreamInfo.dwFlags & AM_STREAM_INFO_START_DEFINED)
+        {
+            REFERENCE_TIME tStart, tStop;
+            if ((pSample->GetTime(&tStart, &tStop) == S_OK) &&
+                (tStop > m_StreamInfo.tStart))
+            {
+                m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_DISCARDING | AM_STREAM_INFO_START_DEFINED);
+                if (m_StreamInfo.dwStartCookie)
+                {
+                    m_pMux->NotifyEvent(EC_STREAM_CONTROL_STARTED, (LONG_PTR) this, m_StreamInfo.dwStartCookie);
+                    m_StreamInfo.dwStartCookie = 0;
+                }
+                if ((tStart < m_StreamInfo.tStart) && m_pTrack->Handler()->CanTruncate())
+                {
+                    m_pTrack->Handler()->Truncate(pSample, m_StreamInfo.tStart);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (m_StreamInfo.dwFlags & AM_STREAM_INFO_STOP_DEFINED)
+        {
+            REFERENCE_TIME tStart, tStop;
+            if (pSample->GetTime(&tStart, &tStop) == S_OK)
+            {
+                DbgLog((LOG_TRACE, 0, "Pending stop %d ms, sample %d", long(m_StreamInfo.tStop/10000), long(tStart/10000)));
 
-				if (tStart >= m_StreamInfo.tStop)
-				{
-					m_StreamInfo.dwFlags |= AM_STREAM_INFO_DISCARDING;
-					m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_STOP_DEFINED);
-					if (m_StreamInfo.dwStopCookie)
-					{
-						m_pMux->NotifyEvent(EC_STREAM_CONTROL_STOPPED, (LONG_PTR) this, m_StreamInfo.dwStopCookie);
-						m_StreamInfo.dwStopCookie = 0;
-					}
-				}
-			}
-		}
-	}
-	return (m_StreamInfo.dwFlags & AM_STREAM_INFO_DISCARDING) ? true : false;
+                if (tStart >= m_StreamInfo.tStop)
+                {
+                    m_StreamInfo.dwFlags |= AM_STREAM_INFO_DISCARDING;
+                    m_StreamInfo.dwFlags &= ~(AM_STREAM_INFO_STOP_DEFINED);
+                    if (m_StreamInfo.dwStopCookie)
+                    {
+                        m_pMux->NotifyEvent(EC_STREAM_CONTROL_STOPPED, (LONG_PTR) this, m_StreamInfo.dwStopCookie);
+                        m_StreamInfo.dwStopCookie = 0;
+                    }
+                }
+            }
+        }
+    }
+    return (m_StreamInfo.dwFlags & AM_STREAM_INFO_DISCARDING) ? true : false;
 }
 
 // ----------------------
@@ -617,10 +617,10 @@ MuxAllocator::SetProperties(
     // !! base buffer count on media type size?
 
     ALLOCATOR_PROPERTIES prop = *pRequest;
-	if (prop.cBuffers < 100)
-	{
-		prop.cBuffers = 100;
-	}
+    if (prop.cBuffers < 100)
+    {
+        prop.cBuffers = 100;
+    }
     return CMemAllocator::SetProperties(&prop, pActual);
 }
 
@@ -629,7 +629,7 @@ MuxAllocator::SetProperties(
 MuxOutput::MuxOutput(Mpeg4Mux* pFilter, CCritSec* pLock, HRESULT* phr)
 : m_pMux(pFilter),
   m_llBytes(0),
-  m_bUseIStream(true),		// use IStream always
+  m_bUseIStream(true),      // use IStream always
   CBaseOutputPin(NAME("MuxOutput"), pFilter, pLock, phr, L"Output")
 {
 }
@@ -683,12 +683,12 @@ MuxOutput::CompleteConnect(IPin *pReceivePin)
     }
     return CBaseOutputPin::CompleteConnect(pReceivePin);
 }
-	
+    
 HRESULT 
 MuxOutput::BreakConnect()
 {
-	m_pIStream = NULL;
-	return __super::BreakConnect();
+    m_pIStream = NULL;
+    return __super::BreakConnect();
 }
 
 void 
@@ -696,7 +696,7 @@ MuxOutput::Reset()
 {
     CAutoLock lock(&m_csWrite);
     m_llBytes = 0;
-    m_bUseIStream = true;		// always use IStream, so we don't fail when downstream filter is stopped first
+    m_bUseIStream = true;       // always use IStream, so we don't fail when downstream filter is stopped first
 }
 
 void

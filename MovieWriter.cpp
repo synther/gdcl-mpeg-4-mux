@@ -61,11 +61,11 @@ MovieWriter::MovieWriter(AtomWriter* pContainer)
 TrackWriter* 
 MovieWriter::MakeTrack(const CMediaType* pmt)
 {
-	TypeHandler* ph = TypeHandler::Make(pmt);
-	if (!ph)
-	{
-		return NULL;
-	}
+    TypeHandler* ph = TypeHandler::Make(pmt);
+    if (!ph)
+    {
+        return NULL;
+    }
     TrackWriter* pTrack = new TrackWriter(this, (long)m_Tracks.size(), ph);
     m_Tracks.push_back(pTrack);
     return pTrack;
@@ -78,7 +78,7 @@ MovieWriter::Close(REFERENCE_TIME* pDuration)
     // also get earliest sample
     vector<TrackWriterPtr>::iterator it;
     REFERENCE_TIME tEarliest = -1;
-	REFERENCE_TIME tThis;
+    REFERENCE_TIME tThis;
     for (it = m_Tracks.begin(); it != m_Tracks.end(); it++)
     {
         TrackWriter* pTrack = *it;
@@ -164,8 +164,8 @@ MovieWriter::Close(REFERENCE_TIME* pDuration)
             break;
         }
     }
-	
-	pmoov->Close();
+    
+    pmoov->Close();
 
     return hr;
 }
@@ -283,7 +283,7 @@ MovieWriter::CheckQueues()
             break;
         }
 
-		WriteTrack(indexReady);
+        WriteTrack(indexReady);
     }
 
     return bAllFinished;
@@ -308,7 +308,7 @@ MovieWriter::WriteTrack(int indexReady)
         m_patmMDAT = new Atom(m_pContainer, m_pContainer->Length(), DWORD('mdat'));
     }
 
-	// write earliest block
+    // write earliest block
     m_Tracks[indexReady]->WriteHead(m_patmMDAT);
 }
 
@@ -316,36 +316,36 @@ void
 MovieWriter::WriteOnStop()
 {
     CAutoLock lock(&m_csWrite);
-	ASSERT(m_bStopped);
+    ASSERT(m_bStopped);
 
-	// loop writing as long as there are blocks queued at the pins
-	for (;;)
-	{
-		LONGLONG tReady = 0;
-		int idxReady = -1;
-		// find the earliest
+    // loop writing as long as there are blocks queued at the pins
+    for (;;)
+    {
+        LONGLONG tReady = 0;
+        int idxReady = -1;
+        // find the earliest
         for (UINT i = 0; i < m_Tracks.size(); i++)
         {
             LONGLONG tHead;
             if (m_Tracks[i]->GetHeadTime(&tHead))
             {
-				if ((idxReady == -1) ||
-					(tHead < tReady))
-				{
-					idxReady = i;
-					tReady = tHead;
-				}
-			}
-		}
-	
-		if (idxReady == -1)
-		{
-			// all done
-			return;
-		}
+                if ((idxReady == -1) ||
+                    (tHead < tReady))
+                {
+                    idxReady = i;
+                    tReady = tHead;
+                }
+            }
+        }
+    
+        if (idxReady == -1)
+        {
+            // all done
+            return;
+        }
 
-		WriteTrack(idxReady);
-	}
+        WriteTrack(idxReady);
+    }
 }
 
 REFERENCE_TIME 
@@ -412,7 +412,7 @@ TrackWriter::TrackWriter(MovieWriter* pMovie, int index, TypeHandler* pType)
 {
     // adjust scale to media type (mostly because audio scales must be 16 bits);
     m_Durations.SetScale(pType->Scale());
-	m_Durations.SetFrameDuration(m_pType->FrameDuration());
+    m_Durations.SetFrameDuration(m_pType->FrameDuration());
 }
 
 HRESULT 
@@ -472,22 +472,22 @@ TrackWriter::Stop(bool bFlush)
     // prevent further writes
     m_bStopped = true;
 
-	if (bFlush)
-	{
-		// discard queued but unwritten samples
-		m_pCurrent = NULL;
-		m_Queue.clear();
-	}
-	else
-	{
-		// queue current partial block 
+    if (bFlush)
+    {
+        // discard queued but unwritten samples
+        m_pCurrent = NULL;
+        m_Queue.clear();
+    }
+    else
+    {
+        // queue current partial block 
         if (m_pCurrent && (m_pCurrent->Samples() > 0))
         {
             m_Queue.push_back(m_pCurrent);
             m_pCurrent = NULL;
         }
 
-	}
+    }
 }
 
 bool 
@@ -547,7 +547,7 @@ void
 TrackWriter::IndexSample(bool bSync, REFERENCE_TIME tStart, REFERENCE_TIME tStop, long cBytes)
 {
     // CTS offset means ES type-specific content parser?
-	// -- this is done now by calculation from the frames start time (heuristically!)
+    // -- this is done now by calculation from the frames start time (heuristically!)
 
     m_Sizes.Add(cBytes);
     m_Durations.Add(tStart, tStop);
@@ -593,8 +593,8 @@ TrackWriter::Close(Atom* patm)
     b[cHdr + 48] = 0x40;
     if (IsVideo())
     {
-		WriteShort(m_pType->Width(), &b[cHdr + 52]);
-		WriteShort(m_pType->Height(), &b[cHdr + 56]);
+        WriteShort(m_pType->Width(), &b[cHdr + 52]);
+        WriteShort(m_pType->Height(), &b[cHdr + 56]);
     }
 
     ptkhd->Append(b, cHdr + 60);
@@ -781,7 +781,7 @@ MediaChunk::Write(Atom* patm)
     // time on last buffer.
     bool bSync = false;
     long cBytes = 0;
-	long nSamples = 0;
+    long nSamples = 0;
 
     // loop once through the samples writing the data
     list<IMediaSample*>::iterator it;
@@ -797,23 +797,23 @@ MediaChunk::Write(Atom* patm)
             bSync = true;
         }
 
-		// write payload, including any transformation (eg BSF to length-prepended)
+        // write payload, including any transformation (eg BSF to length-prepended)
         BYTE* pBuffer;
         pSample->GetPointer(&pBuffer);
-		int cActual = 0;
-		m_pTrack->Handler()->WriteData(patm, pBuffer, pSample->GetActualDataLength(), &cActual);
-		cBytes += cActual;
+        int cActual = 0;
+        m_pTrack->Handler()->WriteData(patm, pBuffer, pSample->GetActualDataLength(), &cActual);
+        cBytes += cActual;
         REFERENCE_TIME tStart, tEnd;
         HRESULT hr = pSample->GetTime(&tStart, &tEnd);
         if (hr == S_OK)
         {
-			// this is the last buffer in the sample
-			m_pTrack->IndexSample(bSync, tStart, tEnd, cBytes);
+            // this is the last buffer in the sample
+            m_pTrack->IndexSample(bSync, tStart, tEnd, cBytes);
 
             // reset for new sample
             bSync = false;
             cBytes = 0;
-			nSamples++;
+            nSamples++;
         }
     }
 
@@ -826,14 +826,14 @@ MediaChunk::Write(Atom* patm)
 bool 
 MediaChunk::IsFull()
 {
-	if (m_pTrack->IsAudio())
-	{
-		return (m_tEnd - m_tStart) > UNITS;
-	}
-	else
-	{
-		return Samples() > m_nSamplesPerChunk;
-	}
+    if (m_pTrack->IsAudio())
+    {
+        return (m_tEnd - m_tStart) > UNITS;
+    }
+    else
+    {
+        return Samples() > m_nSamplesPerChunk;
+    }
 }
 
 
@@ -851,7 +851,7 @@ ListOfLongs::Append(long l)
     if (m_nEntriesInLast >= EntriesPerBlock)
     {
         m_Blocks.push_back(new BYTE[EntriesPerBlock * 4]);
-		m_nEntriesInLast = 0;
+        m_nEntriesInLast = 0;
     }
     BytePtr p = m_Blocks[m_Blocks.size() - 1];
     WriteLong(l, p + m_nEntriesInLast*4);
@@ -911,7 +911,7 @@ ListOfI64::Append(LONGLONG ll)
     if (m_nEntriesInLast >= EntriesPerBlock)
     {
         m_Blocks.push_back(new BYTE[EntriesPerBlock * 8]);
-		m_nEntriesInLast = 0;
+        m_nEntriesInLast = 0;
     }
     BytePtr p = m_Blocks[m_Blocks.size() - 1];
     WriteI64(ll, p + m_nEntriesInLast*8);
@@ -954,32 +954,32 @@ ListOfPairs::ListOfPairs()
 void 
 ListOfPairs::Append(long val)
 {
-	if (m_lCount == 0)
-	{
-		m_lCount = 1;
-		m_lValue = val;
-	}
-	else if (val == m_lValue)
+    if (m_lCount == 0)
+    {
+        m_lCount = 1;
+        m_lValue = val;
+    }
+    else if (val == m_lValue)
     {
         m_lCount++;
     } else {
         m_Table.Append(m_lCount);
         m_Table.Append(m_lValue);
 
-		m_lCount = 1;
+        m_lCount = 1;
         m_lValue = val;
     }
-	m_cEntries++;
+    m_cEntries++;
 }
 
 HRESULT 
 ListOfPairs::Write(Atom* patm)
 {
-	if (m_lCount > 0)
-	{
-		m_Table.Append(m_lCount);
-		m_Table.Append(m_lValue);
-	}
+    if (m_lCount > 0)
+    {
+        m_Table.Append(m_lCount);
+        m_Table.Append(m_lValue);
+    }
     // ver/flags == 0
     // nEntries
     // pairs of <count, value>
@@ -991,11 +991,11 @@ ListOfPairs::Write(Atom* patm)
 
     HRESULT hr = patm->Append(b, 8);
 
-	if (SUCCEEDED(hr))
+    if (SUCCEEDED(hr))
     {
         hr = m_Table.Write(patm);
     }
-	return hr;
+    return hr;
 }
 
 // -----
@@ -1088,42 +1088,42 @@ DurationIndex::DurationIndex(long scale)
 void 
 DurationIndex::Add(REFERENCE_TIME tStart, REFERENCE_TIME tEnd)
 {
-	// In general it is safer to just use the start time of each sample
-	// since the stop time will be either wrong, or will just be deduced from
-	// the next sample start time.
-	// However, when frame re-ordering is happening, the composition time (== PTS) will 
-	// not be the same as the decode time (== DTS) and we need to use both start and
-	// stop time to build the CTTS table. 
-	// We save the first few timestamps and then decide which mode to be in.
-	if (m_nSamples < mode_decide_count)
-	{
-		if (m_nSamples == 0)
-		{
-			m_SumDurations = 0;
-		}
-		m_SumDurations += (tEnd - tStart);
-		
-		m_SampleStarts[m_nSamples] = tStart;
-		m_SampleStops[m_nSamples] = tEnd;
-		m_nSamples++;
-		return;
-	}
-	else if (m_nSamples == mode_decide_count)
-	{
-		// this decides on a mode and then processes 
-		// all the samples in the table
-		ModeDecide();
-	}
+    // In general it is safer to just use the start time of each sample
+    // since the stop time will be either wrong, or will just be deduced from
+    // the next sample start time.
+    // However, when frame re-ordering is happening, the composition time (== PTS) will 
+    // not be the same as the decode time (== DTS) and we need to use both start and
+    // stop time to build the CTTS table. 
+    // We save the first few timestamps and then decide which mode to be in.
+    if (m_nSamples < mode_decide_count)
+    {
+        if (m_nSamples == 0)
+        {
+            m_SumDurations = 0;
+        }
+        m_SumDurations += (tEnd - tStart);
+        
+        m_SampleStarts[m_nSamples] = tStart;
+        m_SampleStops[m_nSamples] = tEnd;
+        m_nSamples++;
+        return;
+    }
+    else if (m_nSamples == mode_decide_count)
+    {
+        // this decides on a mode and then processes 
+        // all the samples in the table
+        ModeDecide();
+    }
 
-	if (m_bCTTS)
-	{
-		AppendCTTSMode(tStart, tEnd);
-	}
-	else
-	{
+    if (m_bCTTS)
+    {
+        AppendCTTSMode(tStart, tEnd);
+    }
+    else
+    {
         AddDuration(long(ToScale(tStart) - m_TotalDuration));
     }
-	m_nSamples++;
+    m_nSamples++;
     m_tStartLast = tStart;
     m_tStopLast = tEnd;
     return;
@@ -1132,14 +1132,14 @@ DurationIndex::Add(REFERENCE_TIME tStart, REFERENCE_TIME tEnd)
 void
 DurationIndex::AddDuration(long cThis)
 {
-	if (cThis < 0)
-	{
-		// sometimes AdjustTimes causes the final duration to be negative.
-		// I think I've fixed that, but just in case:
-		cThis = 1;
-	}
+    if (cThis < 0)
+    {
+        // sometimes AdjustTimes causes the final duration to be negative.
+        // I think I've fixed that, but just in case:
+        cThis = 1;
+    }
 
-	m_STTS.Append(cThis);
+    m_STTS.Append(cThis);
 
     m_TotalDuration += cThis;
 }
@@ -1147,116 +1147,116 @@ DurationIndex::AddDuration(long cThis)
 void 
 DurationIndex::AppendCTTSMode(REFERENCE_TIME tStart, REFERENCE_TIME tEnd)
 {
-	// if the frames are out of order and the end time is invalid,
-	// we must use the frame rate to work out the difference
-	REFERENCE_TIME dur;
-	if (m_bUseFrameRate)
-	{
-		dur = m_tFrame;
-	}
-	else
-	{
-		 dur = (tEnd - tStart);
-	}
-	// ToScale will round down, and this truncation causes the 
-	// diff between decode and presentation time to get larger and larger
-	// so we sum both reference time and scaled totals and use the difference. 
-	// That way the rounding error does not build up.
-	// the simpler version of these two lines is: cThis = long(ToScale(tEnd - tStart));
-	m_refDuration += dur;
-	long cThis = long(ToScale(m_refDuration) - m_TotalDuration);
+    // if the frames are out of order and the end time is invalid,
+    // we must use the frame rate to work out the difference
+    REFERENCE_TIME dur;
+    if (m_bUseFrameRate)
+    {
+        dur = m_tFrame;
+    }
+    else
+    {
+         dur = (tEnd - tStart);
+    }
+    // ToScale will round down, and this truncation causes the 
+    // diff between decode and presentation time to get larger and larger
+    // so we sum both reference time and scaled totals and use the difference. 
+    // That way the rounding error does not build up.
+    // the simpler version of these two lines is: cThis = long(ToScale(tEnd - tStart));
+    m_refDuration += dur;
+    long cThis = long(ToScale(m_refDuration) - m_TotalDuration);
 
-	// difference between sum of durations to here and actual CTS
-	// -- note: do this before adding current sample to total duration
-	long cDiff =  long(ToScale(tStart) - m_TotalDuration);
+    // difference between sum of durations to here and actual CTS
+    // -- note: do this before adding current sample to total duration
+    long cDiff =  long(ToScale(tStart) - m_TotalDuration);
 
-	AddDuration(cThis);
+    AddDuration(cThis);
 
-	m_CTTS.Append(cDiff);
+    m_CTTS.Append(cDiff);
 }
 
 void
 DurationIndex::ModeDecide()
 {
-	if (m_nSamples > 0)
-	{
-		bool bReverse = false;
-		bool bDurOk = true;
-		LONGLONG ave = m_SumDurations / m_nSamples;
+    if (m_nSamples > 0)
+    {
+        bool bReverse = false;
+        bool bDurOk = true;
+        LONGLONG ave = m_SumDurations / m_nSamples;
 
-		// 70fps is the maximum reasonable frame rate, so anything less than this is
-		// likely to be an error
-		const REFERENCE_TIME min_frame_dur = (UNITS / 70);
-		if (ave < min_frame_dur)
-		{
-			bDurOk = false;
-		}
+        // 70fps is the maximum reasonable frame rate, so anything less than this is
+        // likely to be an error
+        const REFERENCE_TIME min_frame_dur = (UNITS / 70);
+        if (ave < min_frame_dur)
+        {
+            bDurOk = false;
+        }
 
-		// in the most common case, when converting from TS output, we don't
-		// get either accurate end times or an accuration rate in the media type.
-		// The smallest positive interval between frames should be the frame duration.
-		REFERENCE_TIME tInterval = 0;
+        // in the most common case, when converting from TS output, we don't
+        // get either accurate end times or an accuration rate in the media type.
+        // The smallest positive interval between frames should be the frame duration.
+        REFERENCE_TIME tInterval = 0;
 
-		for (int i = 0; i < m_nSamples; i++)
-		{
-			if (i > 0)
-			{
-				if (m_SampleStarts[i] < m_SampleStarts[i-1])
-				{
-					bReverse = true;
-				}
-				else 
-				{
-					REFERENCE_TIME tThis = m_SampleStarts[i] - m_SampleStarts[i-1];
-					if (tThis > min_frame_dur)
-					{
-						if ((tInterval == 0) || (tThis < tInterval))
-						{
-							tInterval = tThis;
-						}
-					}
-				}
-			}
-		}
-		m_tStartFirst = m_SampleStarts[0];
+        for (int i = 0; i < m_nSamples; i++)
+        {
+            if (i > 0)
+            {
+                if (m_SampleStarts[i] < m_SampleStarts[i-1])
+                {
+                    bReverse = true;
+                }
+                else 
+                {
+                    REFERENCE_TIME tThis = m_SampleStarts[i] - m_SampleStarts[i-1];
+                    if (tThis > min_frame_dur)
+                    {
+                        if ((tInterval == 0) || (tThis < tInterval))
+                        {
+                            tInterval = tThis;
+                        }
+                    }
+                }
+            }
+        }
+        m_tStartFirst = m_SampleStarts[0];
 
-		// this interval is a better guess than the media type frame rate
-		if (tInterval > min_frame_dur)
-		{
-			m_tFrame = tInterval;
-		}
+        // this interval is a better guess than the media type frame rate
+        if (tInterval > min_frame_dur)
+        {
+            m_tFrame = tInterval;
+        }
 
-		if (bReverse)
-		{
-			m_bCTTS = true;
+        if (bReverse)
+        {
+            m_bCTTS = true;
 
-			if (!bDurOk)
-			{
-				m_bUseFrameRate = true;
-			}
-			else
-			{
-				m_bUseFrameRate = false;
-			}
+            if (!bDurOk)
+            {
+                m_bUseFrameRate = true;
+            }
+            else
+            {
+                m_bUseFrameRate = false;
+            }
 
-			// remember that the first frame might not be zero
-			m_TotalDuration = ToScale(m_tStartFirst);
-			m_refDuration = m_tStartFirst;
-			for (int i = 0; i < m_nSamples; i++)
-			{
-				AppendCTTSMode(m_SampleStarts[i], m_SampleStops[i]);
-			}
-		}
-		else
-		{
-			m_bCTTS = false;
-			m_TotalDuration = ToScale(m_tStartFirst);
-			for (int i = 1; i < m_nSamples; i++)
-			{
-				AddDuration(long(ToScale(m_SampleStarts[i]) - m_TotalDuration));
-			}
-		}
-	}
+            // remember that the first frame might not be zero
+            m_TotalDuration = ToScale(m_tStartFirst);
+            m_refDuration = m_tStartFirst;
+            for (int i = 0; i < m_nSamples; i++)
+            {
+                AppendCTTSMode(m_SampleStarts[i], m_SampleStops[i]);
+            }
+        }
+        else
+        {
+            m_bCTTS = false;
+            m_TotalDuration = ToScale(m_tStartFirst);
+            for (int i = 1; i < m_nSamples; i++)
+            {
+                AddDuration(long(ToScale(m_SampleStarts[i]) - m_TotalDuration));
+            }
+        }
+    }
 }
 
 HRESULT 
@@ -1330,31 +1330,31 @@ DurationIndex::WriteTable(Atom* patm)
 {
     // do nothing if no samples at all
     HRESULT hr = S_OK;
-	if (m_nSamples <= mode_decide_count)
-	{
-		ModeDecide();
-	}
-	if (m_nSamples > 0)
+    if (m_nSamples <= mode_decide_count)
     {
-		if (!m_bCTTS)
-		{
-			// the final sample duration has not been recorded -- use the
-			// stop time
-			AddDuration(long(ToScale(m_tStopLast) - m_TotalDuration));
-		}
+        ModeDecide();
+    }
+    if (m_nSamples > 0)
+    {
+        if (!m_bCTTS)
+        {
+            // the final sample duration has not been recorded -- use the
+            // stop time
+            AddDuration(long(ToScale(m_tStopLast) - m_TotalDuration));
+        }
 
         // create atom and write table
         smart_ptr<Atom> pstts = patm->CreateAtom('stts');
-		m_STTS.Write(pstts);
+        m_STTS.Write(pstts);
         pstts->Close();
 
-		if (m_bCTTS)
-		{
-			// write CTTS table
-			smart_ptr<Atom> pctts = patm->CreateAtom('ctts');
-			m_CTTS.Write(pctts);
-			pctts->Close();
-		}
+        if (m_bCTTS)
+        {
+            // write CTTS table
+            smart_ptr<Atom> pctts = patm->CreateAtom('ctts');
+            m_CTTS.Write(pctts);
+            pctts->Close();
+        }
     }
     return hr;
 }
