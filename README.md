@@ -1,7 +1,7 @@
-GDCL Mpeg4 filter
+GDCL Mpeg-4 filter
 ==================
 
-It is a mirror of the GDCL Mpeg-4 Multiplexor filter by Geraint Davies. 
+It is a repository for the GDCL Mpeg-4 Multiplexor filter by Geraint Davies. 
 You can download original source and binaries from http://www.gdcl.co.uk/mpeg4/
 
 Original filters contain both mux and demux filters. This repository contains mux only. 
